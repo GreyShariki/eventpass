@@ -1,5 +1,10 @@
 <?php
-require_once("./server/db.php")
+require_once("server/db.php");
+session_start();
+if ($_SESSION["logged"] !== true){
+    header('location: adminauth.php');
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -112,7 +117,7 @@ require_once("./server/db.php")
                             <div class="dynamic-form-item mb-3">
                                 <div class="row g-2">
                                     <div class="col-md-1">
-                                        <select name="benefit_icon[]" class="form-select">
+                                        <select name="benefit[0][icon]" class="form-select">
                                             <option value="bi-lightning-charge">⚡</option>
                                             <option value="bi-music-note-list">🎵</option>
                                             <option value="bi-magic">🎩</option>
@@ -120,7 +125,7 @@ require_once("./server/db.php")
                                         </select>
                                     </div>
                                     <div class="col-md-10">
-                                        <input type="text" name="benefit_text[]" class="form-control" placeholder="Описание преимущества">
+                                        <input type="text" name="benefit[0][text]" class="form-control" placeholder="Описание преимущества">
                                     </div>
                                     <div class="col-md-1">
                                         <button type="button" class="btn btn-danger w-100" onclick="removeItem(this)"><i class="bi bi-trash"></i></button>
@@ -143,10 +148,10 @@ require_once("./server/db.php")
                             <div class="dynamic-form-item mb-3">
                                 <div class="row g-2">
                                     <div class="col-md-2">
-                                        <input type="time" name="program_time[]" class="form-control">
+                                        <input type="time" name="program[0][time]" class="form-control">
                                     </div>
                                     <div class="col-md-1">
-                                        <select name="program_icon[]" class="form-select">
+                                        <select name="program[0][icon]" class="form-select">
                                             <option value="bi-door-open">🚪</option>
                                             <option value="bi-mic">🎤</option>
                                             <option value="bi-boombox">🔊</option>
@@ -154,7 +159,7 @@ require_once("./server/db.php")
                                         </select>
                                     </div>
                                     <div class="col-md-8">
-                                        <input type="text" name="program_text[]" class="form-control" placeholder="Описание этапа">
+                                        <input type="text" name="program[0][text]" class="form-control" placeholder="Описание этапа">
                                     </div>
                                     <div class="col-md-1">
                                         <button type="button" class="btn btn-danger w-100" onclick="removeItem(this)"><i class="bi bi-trash"></i></button>
@@ -177,17 +182,17 @@ require_once("./server/db.php")
                             <div class="dynamic-form-item mb-3 ticket-card p-3">
                                 <div class="row g-2">
                                     <div class="col-md-3">
-                                        <select name="ticket_type[]" class="form-select">
+                                        <select name="tickets[0][type]" class="form-select">
                                             <option value="primary">VIP</option>
                                             <option value="info">Партер</option>
                                             <option value="success">Трибуны</option>
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <input type="text" name="ticket_name[]" class="form-control" placeholder="Название билета">
+                                        <input type="text" name="tickets[0][name]" class="form-control" placeholder="Название билета">
                                     </div>
                                     <div class="col-md-3">
-                                        <input type="number" name="ticket_price[]" class="form-control" placeholder="Цена">
+                                        <input type="number" name="tickets[0][price]" class="form-control" placeholder="Цена">
                                     </div>
                                     <div class="col-md-2">
                                         <button type="button" class="btn btn-danger w-100" onclick="removeItem(this)"><i class="bi bi-trash"></i></button>
@@ -196,7 +201,7 @@ require_once("./server/db.php")
                                 <div class="mt-2" id="ticket-benefits-container-0">
                                     <div class="row g-2 mb-2">
                                         <div class="col-md-10">
-                                            <input type="text" name="ticket_benefit_0[]" class="form-control form-control-sm" placeholder="Преимущество билета">
+                                            <input type="text" name="tickets[0][benefits][0]" class="form-control form-control-sm" placeholder="Преимущество билета">
                                         </div>
                                         <div class="col-md-2">
                                             <button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="removeBenefit(this)">×</button>
@@ -227,124 +232,130 @@ require_once("./server/db.php")
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let ticketCounter = 1;
-        
-        function addBenefit() {
-            const container = document.getElementById('benefits-container');
-            const newItem = document.createElement('div');
-            newItem.className = 'dynamic-form-item mb-3';
-            newItem.innerHTML = `
-                <div class="row g-2">
-                    <div class="col-md-1">
-                        <select name="benefit_icon[]" class="form-select">
-                            <option value="bi-lightning-charge">⚡</option>
-                            <option value="bi-music-note-list">🎵</option>
-                            <option value="bi-magic">🎩</option>
-                            <option value="bi-gift">🎁</option>
-                        </select>
-                    </div>
-                    <div class="col-md-10">
-                        <input type="text" name="benefit_text[]" class="form-control" placeholder="Описание преимущества">
-                    </div>
-                    <div class="col-md-1">
-                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(this)"><i class="bi bi-trash"></i></button>
-                    </div>
+    let ticketCounter = 1;
+    let benefitCounter = 1;
+    let programCounter = 1;
+    
+    function addBenefit() {
+    const container = document.getElementById('benefits-container');
+    const newItem = document.createElement('div');
+    newItem.className = 'dynamic-form-item mb-3';
+    newItem.innerHTML = `
+        <div class="row g-2">
+            <div class="col-md-1">
+                <select name="benefit_icon[]" class="form-select">
+                    <option value="bi-lightning-charge">⚡</option>
+                    <option value="bi-music-note-list">🎵</option>
+                    <option value="bi-magic">🎩</option>
+                    <option value="bi-gift">🎁</option>
+                </select>
+            </div>
+            <div class="col-md-10">
+                <input type="text" name="benefit[${benefitCounter}][text]" class="form-control" placeholder="Описание преимущества">
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-danger w-100" onclick="removeItem(this)"><i class="bi bi-trash"></i></button>
+            </div>
+        </div>
+    `;
+    container.appendChild(newItem);
+    benefitCounter++;
+}
+    
+    function addProgramItem() {
+        const container = document.getElementById('program-container');
+        const newItem = document.createElement('div');
+        newItem.className = 'dynamic-form-item mb-3';
+        newItem.innerHTML = `
+            <div class="row g-2">
+                <div class="col-md-2">
+                    <input type="time" name="program[${programCounter}][time]" class="form-control">
                 </div>
-            `;
-            container.appendChild(newItem);
-        }
-        
-        function addProgramItem() {
-            const container = document.getElementById('program-container');
-            const newItem = document.createElement('div');
-            newItem.className = 'dynamic-form-item mb-3';
-            newItem.innerHTML = `
-                <div class="row g-2">
-                    <div class="col-md-2">
-                        <input type="time" name="program_time[]" class="form-control">
-                    </div>
-                    <div class="col-md-1">
-                        <select name="program_icon[]" class="form-select">
-                            <option value="bi-door-open">🚪</option>
-                            <option value="bi-mic">🎤</option>
-                            <option value="bi-boombox">🔊</option>
-                            <option value="bi-emoji-smile">😊</option>
-                        </select>
-                    </div>
-                    <div class="col-md-8">
-                        <input type="text" name="program_text[]" class="form-control" placeholder="Описание этапа">
-                    </div>
-                    <div class="col-md-1">
-                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(this)"><i class="bi bi-trash"></i></button>
-                    </div>
+                <div class="col-md-1">
+                    <select name="program[${programCounter}][icon]" class="form-select">
+                        <option value="bi-door-open">🚪</option>
+                        <option value="bi-mic">🎤</option>
+                        <option value="bi-boombox">🔊</option>
+                        <option value="bi-emoji-smile">😊</option>
+                    </select>
                 </div>
-            `;
-            container.appendChild(newItem);
-        }
-        
-        function addTicket() {
-            const container = document.getElementById('tickets-container');
-            const newItem = document.createElement('div');
-            newItem.className = 'dynamic-form-item mb-3 ticket-card p-3';
-            newItem.innerHTML = `
-                <div class="row g-2">
-                    <div class="col-md-3">
-                        <select name="ticket_type[]" class="form-select">
-                            <option value="primary">VIP</option>
-                            <option value="info">Партер</option>
-                            <option value="success">Трибуны</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <input type="text" name="ticket_name[]" class="form-control" placeholder="Название билета">
-                    </div>
-                    <div class="col-md-3">
-                        <input type="number" name="ticket_price[]" class="form-control" placeholder="Цена">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-danger w-100" onclick="removeItem(this)"><i class="bi bi-trash"></i></button>
-                    </div>
+                <div class="col-md-8">
+                    <input type="text" name="program[${programCounter}][text]" class="form-control" placeholder="Описание этапа">
                 </div>
-                <div class="mt-2" id="ticket-benefits-container-${ticketCounter}">
-                    <div class="row g-2 mb-2">
-                        <div class="col-md-10">
-                            <input type="text" name="ticket_benefit_${ticketCounter}[]" class="form-control form-control-sm" placeholder="Преимущество билета">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="removeBenefit(this)">×</button>
-                        </div>
-                    </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger w-100" onclick="removeItem(this)"><i class="bi bi-trash"></i></button>
                 </div>
-                <button type="button" class="btn btn-sm btn-add-ticket text-white mt-2" onclick="addTicketBenefit(${ticketCounter})">
-                    <i class="bi bi-plus"></i> Добавить преимущество
-                </button>
-            `;
-            container.appendChild(newItem);
-            ticketCounter++;
-        }
-        
-        function addTicketBenefit(ticketId) {
-            const container = document.getElementById(`ticket-benefits-container-${ticketId}`);
-            const newItem = document.createElement('div');
-            newItem.className = 'row g-2 mb-2';
-            newItem.innerHTML = `
-                <div class="col-md-10">
-                    <input type="text" name="ticket_benefit_${ticketId}[]" class="form-control form-control-sm" placeholder="Преимущество билета">
+            </div>
+        `;
+        container.appendChild(newItem);
+        programCounter++;
+    }
+    
+    function addTicket() {
+        const container = document.getElementById('tickets-container');
+        const newItem = document.createElement('div');
+        newItem.className = 'dynamic-form-item mb-3 ticket-card p-3';
+        newItem.innerHTML = `
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <select name="tickets[${ticketCounter}][type]" class="form-select">
+                        <option value="primary">VIP</option>
+                        <option value="info">Партер</option>
+                        <option value="success">Трибуны</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="tickets[${ticketCounter}][name]" class="form-control" placeholder="Название билета">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" name="tickets[${ticketCounter}][price]" class="form-control" placeholder="Цена">
                 </div>
                 <div class="col-md-2">
-                    <button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="removeBenefit(this)">×</button>
+                    <button type="button" class="btn btn-danger w-100" onclick="removeItem(this)"><i class="bi bi-trash"></i></button>
                 </div>
-            `;
-            container.appendChild(newItem);
-        }
+            </div>
+            <div class="mt-2" id="ticket-benefits-container-${ticketCounter}">
+                <div class="row g-2 mb-2">
+                    <div class="col-md-10">
+                        <input type="text" name="tickets[${ticketCounter}][benefits][0]" class="form-control form-control-sm" placeholder="Преимущество билета">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="removeBenefit(this)">×</button>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-add-ticket text-white mt-2" onclick="addTicketBenefit(${ticketCounter})">
+                <i class="bi bi-plus"></i> Добавить преимущество
+            </button>
+        `;
+        container.appendChild(newItem);
+        ticketCounter++;
+    }
+    
+    function addTicketBenefit(ticketId) {
+        const container = document.getElementById(`ticket-benefits-container-${ticketId}`);
+        const benefits = container.querySelectorAll('[name^="tickets[' + ticketId + '][benefits]"]').length;
         
-        function removeItem(button) {
-            button.closest('.dynamic-form-item').remove();
-        }
-        
-        function removeBenefit(button) {
-            button.closest('.row').remove();
-        }
-    </script>
+        const newItem = document.createElement('div');
+        newItem.className = 'row g-2 mb-2';
+        newItem.innerHTML = `
+            <div class="col-md-10">
+                <input type="text" name="tickets[${ticketId}][benefits][${benefits}]" class="form-control form-control-sm" placeholder="Преимущество билета">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="removeBenefit(this)">×</button>
+            </div>
+        `;
+        container.appendChild(newItem);
+    }
+    
+    function removeItem(button) {
+        button.closest('.dynamic-form-item').remove();
+    }
+    
+    function removeBenefit(button) {
+        button.closest('.row').remove();
+    }
+</script>
 </body>
 </html>
