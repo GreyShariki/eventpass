@@ -97,20 +97,9 @@
       </div>
     </section>
     <main class="container-fluid py-4">
-      <div class="row g-4">
-        <div class="col-lg-2">
-          <div class="sidebar p-3">
-            <button class="btn sidebar-btn w-100 mb-2 active">
-              <i class="bi bi-calendar-event"></i> Все мероприятия
-            </button>
-            <button class="btn sidebar-btn w-100 mb-2">
-              <i class="bi bi-music-note-beamed"></i> Концерты
-            </button>
-            <button class="btn sidebar-btn w-100">
-              <i class="bi bi-people"></i> Сходки фанатов
-            </button>
-          </div>
-        </div>
+      <div class="row g-4 justify-content-center">
+        
+          
 
         <div class="col-lg-10">
         <?php 
