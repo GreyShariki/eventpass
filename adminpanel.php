@@ -3,6 +3,7 @@ require_once("server/db.php");
 session_start();
 if ($_SESSION["logged"] !== true){
     header('location: adminauth.php');
+    exit;
 }
 
 ?>

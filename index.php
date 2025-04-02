@@ -42,23 +42,8 @@
           <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item">
-                <a class="nav-link active" href="#">
+                <a class="nav-link active" href="index.php">
                   <i class="bi bi-house-door me-1"></i> Главная
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="bi bi-calendar-event me-1"></i> Мероприятия
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="bi bi-music-note-beamed me-1"></i> Концерты
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="bi bi-people me-1"></i> Сходки
                 </a>
               </li>
               <li class="nav-item">
@@ -98,9 +83,6 @@
     </section>
     <main class="container-fluid py-4">
       <div class="row g-4 justify-content-center">
-        
-          
-
         <div class="col-lg-10">
         <?php 
         require_once('./server/db.php');
@@ -220,6 +202,7 @@
             
             echo '</div>
                     <div class="text-center mt-4">
+                        <p>Участники: '.$event['quantity'].'</p>
                         <button class="btn btn-ticket btn-lg text-white">
                             <i class="bi bi-cart3 me-2"></i>Купить билеты
                         </button>

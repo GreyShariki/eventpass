@@ -15,9 +15,18 @@ const isChange = () => {
   }
 };
 emailjs.init("ww-qhiI6f_xWoMjgN");
-const sendTicketEmail = () => {
+const sendTicketEmail = async () => {
+  const eventId = document.getElementById("eventSelect").value;
   const ticketSelect = document.getElementById("ticketSelect");
   const selectedTicket = ticketSelect.options[ticketSelect.selectedIndex];
+  await fetch("./server/quantity.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: `event_id=${eventId}`,
+  });
+
   const formData = {
     email: document.getElementById("email").value,
     first_name: document.getElementById("fname").value,

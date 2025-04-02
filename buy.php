@@ -81,7 +81,6 @@ while ($ticket = $tickets_res->fetch_assoc()) {
       <div class="container row justify-content-center">
         <div class="col-11 col-md-5">
         <form
-          action=""
           class="form-section border border-dark m-5"
           method="post"
         >

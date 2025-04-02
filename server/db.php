@@ -1,4 +1,5 @@
 <?php
+
 $dbname = "eventpass";
 $password = "";
 $username = "root";
